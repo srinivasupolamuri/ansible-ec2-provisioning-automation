@@ -1,24 +1,14 @@
 ---
-- name: Install Ansible control node public key on managed instances
+- name: Configure passwordless SSH authentication
   hosts: linux_nodes
   gather_facts: false
   become: true
 
-  vars_files:
-    - ../vars/aws.yml
-
   vars:
-    # Set this to the correct default SSH user for each image in inventory.
-    ansible_ssh_private_key_file: "{{ bootstrap_private_key_file }}"
+    control_node_public_key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
 
   tasks:
-    - name: Read the public key from the control node
-      ansible.builtin.set_fact:
-        control_node_public_key: "{{ lookup('ansible.builtin.file', ansible_public_key_file) }}"
-      delegate_to: localhost
-      become: false
-
-    - name: Install public key for passwordless SSH
+    - name: Install control node public key on target instances
       ansible.posix.authorized_key:
         user: "{{ ansible_user }}"
         key: "{{ control_node_public_key }}"
