@@ -1,44 +1,23 @@
 ---
-- name: Provision two Ubuntu and one CentOS-compatible EC2 instance
-  hosts: localhost
+- hosts: localhost
   connection: local
-  gather_facts: false
-
-  vars_files:
-    - ../vars/aws.yml
 
   tasks:
-    - name: Launch EC2 instances using a loop
-      amazon.aws.ec2_instance:
-        name: "{{ item.name }}"
-        region: "{{ aws_region }}"
-        instance_type: "{{ aws_instance_type }}"
-        image_id: "{{ item.ami }}"
-        key_name: "{{ aws_key_name }}"
-        vpc_subnet_id: "{{ aws_subnet_id }}"
-        security_group: "{{ aws_security_group_id }}"
-        network:
-          assign_public_ip: true
-        state: running
-        wait: true
-        tags:
-          Project: ansible-ec2-provisioning-automation
-          ManagedBy: Ansible
-          OperatingSystem: "{{ item.os }}"
-      loop:
-        - name: ansible-ubuntu-01
-          os: Ubuntu
-          ami: "{{ ubuntu_ami_id }}"
-        - name: ansible-ubuntu-02
-          os: Ubuntu
-          ami: "{{ ubuntu_ami_id }}"
-        - name: ansible-centos-01
-          os: CentOS
-          ami: "{{ centos_ami_id }}"
-      register: ec2_creation_result
-
-    - name: Display instance creation summary
-      ansible.builtin.debug:
-        msg: >-
-          Requested EC2 instances: {{ ec2_creation_result.results | length }}.
-          Review the AWS Console and the task output to confirm IDs and states.
+  - name: Create EC2 instances
+    amazon.aws.ec2_instance:
+      name: "{{ item.name }}"
+      key_name: "ansi-key-pair"
+      instance_type: t3.micro
+      security_group: default
+      region: ap-south-1
+      aws_access_key: "{{ec2_access_key}}"  # From vault as defined
+      aws_secret_key: "{{ec2_secret_key}}"  # From vault as defined      
+      network:
+        assign_public_ip: true
+      image_id: "{{ item.image }}"
+      tags:
+        environment: "{{ item.name }}"
+    loop:
+      - { image: "ami-0d27e0fb3bac4d724", name: "manage-node-1" } # Update AMI ID according 
+      - { image: "ami-0b6d9d3d33ba97d99", name: "manage-node-2" } # to your account
+      - { image: "ami-0b6d9d3d33ba97d99", name: "manage-node-3" }
