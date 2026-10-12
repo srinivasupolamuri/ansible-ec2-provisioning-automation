@@ -1,0 +1,44 @@
+---
+- name: Provision two Ubuntu and one CentOS-compatible EC2 instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars/aws.yml
+
+  tasks:
+    - name: Launch EC2 instances using a loop
+      amazon.aws.ec2_instance:
+        name: "{{ item.name }}"
+        region: "{{ aws_region }}"
+        instance_type: "{{ aws_instance_type }}"
+        image_id: "{{ item.ami }}"
+        key_name: "{{ aws_key_name }}"
+        vpc_subnet_id: "{{ aws_subnet_id }}"
+        security_group: "{{ aws_security_group_id }}"
+        network:
+          assign_public_ip: true
+        state: running
+        wait: true
+        tags:
+          Project: ansible-ec2-provisioning-automation
+          ManagedBy: Ansible
+          OperatingSystem: "{{ item.os }}"
+      loop:
+        - name: ansible-ubuntu-01
+          os: Ubuntu
+          ami: "{{ ubuntu_ami_id }}"
+        - name: ansible-ubuntu-02
+          os: Ubuntu
+          ami: "{{ ubuntu_ami_id }}"
+        - name: ansible-centos-01
+          os: CentOS
+          ami: "{{ centos_ami_id }}"
+      register: ec2_creation_result
+
+    - name: Display instance creation summary
+      ansible.builtin.debug:
+        msg: >-
+          Requested EC2 instances: {{ ec2_creation_result.results | length }}.
+          Review the AWS Console and the task output to confirm IDs and states.

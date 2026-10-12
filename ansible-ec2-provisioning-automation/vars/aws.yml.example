@@ -1,0 +1,19 @@
+---
+# Copy to vars/aws.yml and replace all placeholders.
+# AMI IDs are region-specific. Verify current IDs before provisioning.
+aws_region: ap-south-1
+aws_instance_type: t2.micro
+aws_key_name: REPLACE_WITH_EXISTING_EC2_KEY_PAIR_NAME
+aws_security_group_id: sg-REPLACE_WITH_SECURITY_GROUP_ID
+aws_subnet_id: subnet-REPLACE_WITH_SUBNET_ID
+
+# Set current, verified AMI IDs for the same region and architecture.
+ubuntu_ami_id: ami-REPLACE_WITH_UBUNTU_AMI
+centos_ami_id: ami-REPLACE_WITH_CENTOS_COMPATIBLE_AMI
+
+# Path to the public key on the Ansible control node (not the private key).
+ansible_public_key_file: /home/ubuntu/.ssh/id_ed25519.pub
+
+# Path to the bootstrap private key for the first SSH connection.
+# Keep the key outside the repository and never commit it.
+bootstrap_private_key_file: /home/ubuntu/.ssh/bootstrap-key.pem

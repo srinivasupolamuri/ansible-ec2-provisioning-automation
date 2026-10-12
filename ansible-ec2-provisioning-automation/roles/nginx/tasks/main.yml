@@ -1,0 +1,29 @@
+---
+- name: Refresh APT package cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install Nginx on Debian-family systems
+  ansible.builtin.package:
+    name: "{{ nginx_package }}"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Deploy sample web page
+  ansible.builtin.copy:
+    src: index.html
+    dest: "{{ web_root }}/index.html"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+  when: ansible_os_family == "Debian"
+
+- name: Ensure Nginx is enabled and running
+  ansible.builtin.service:
+    name: "{{ nginx_service }}"
+    state: started
+    enabled: true
+  when: ansible_os_family == "Debian"

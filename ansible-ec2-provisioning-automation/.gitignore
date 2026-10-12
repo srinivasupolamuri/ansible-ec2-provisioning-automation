@@ -1,0 +1,25 @@
+# Local environment configuration
+vars/aws.yml
+inventory/hosts.ini
+
+# SSH private keys and secrets
+*.pem
+*.key
+id_rsa
+id_ed25519
+.env
+.env.*
+vault_password.txt
+.vault_pass
+
+# Ansible-generated files
+*.retry
+
+# Python/editor files
+__pycache__/
+*.py[cod]
+.venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

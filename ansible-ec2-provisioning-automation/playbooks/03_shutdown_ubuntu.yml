@@ -1,0 +1,22 @@
+---
+- name: Shut down Ubuntu instances only
+  hosts: linux_nodes
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Display detected operating system
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} is running {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+    - name: Schedule shutdown on Ubuntu hosts only
+      ansible.builtin.command: /sbin/shutdown -h +1
+      async: 10
+      poll: 0
+      when: ansible_distribution == "Ubuntu"
+      changed_when: true
+
+    - name: Skip shutdown for non-Ubuntu hosts
+      ansible.builtin.debug:
+        msg: "Shutdown skipped: {{ inventory_hostname }} is {{ ansible_distribution }}, not Ubuntu."
+      when: ansible_distribution != "Ubuntu"
